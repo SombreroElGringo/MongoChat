@@ -13,6 +13,7 @@ app.get('/', function(req, res){
 // Connect to mongo
 mongo.connect('mongodb://127.0.0.1/mongochat').then(function(db) {
 
+
     console.log('MongoDB connected %s', chalk.green('✓'));
 
     // Connect to socket.io
