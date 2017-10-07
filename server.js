@@ -1,12 +1,18 @@
+const app = require('express')();
+const http = require('http').Server(app);
 const mongo = require('mongodb').MongoClient;
-const client = require('socket.io').listen(3000).sockets;
+const client = require('socket.io').listen(4000).sockets;
 const chalk = require('chalk');
 
+const port = process.env.PORT || 3000;
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/index.html');
+});
 
 // Connect to mongo
-mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db) {
+mongo.connect('mongodb://127.0.0.1/mongochat').then(function(db) {
 
-    if(err) { throw err; }
 
     console.log('MongoDB connected %s', chalk.green('✓'));
 
@@ -68,4 +74,10 @@ mongo.connect('mongodb://127.0.0.1/mongochat', function(err, db) {
         });
 
     });
+}).catch(function(err) {
+    throw err;
+});
+
+http.listen(port, function(){
+  console.log('listening on %d %s', port, chalk.green('✓'));
 });
