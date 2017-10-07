@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>MongoChat</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <style>
+        #messages{
+            height: 400px;
+        }
+        .char-message {
+            position: relative;
+            margin-top: 20px;
+        }
+        .date-message {
+            position: relative;
+            margin-top: 20px;
+            margin-left: 70%;
+
+            font-size: x-small;
+        }
+
+        @media screen and (max-width: 1000px) {
+            .date-message {
+                margin-left: 60%;
+            }
+        }
+    </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="row">
+              <div class="col-md-6 offset-md-3 col-sm-12">
+                  <h1 class="text-center">
+                      MongoChat
+                      <button id="clear" type="button" class="btn btn-danger">Clear chat</button>
+                  </h1>
+                  <div id="status"></div>
+                  <div id="chat">
+                      <input id="name" type="text"  class="form-control" placeholder="Enter name...">
+                      <br>
+                      <div class="card">
+                          <div id="messages" class="card-block">
+
+                          </div>
+                      </div>
+                      <br>
+                      <textarea id="textarea" class="form-control" placeholder="Enter message..."></textarea>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+      <script type="text/javascript">
+          (function() {
+              var element = (id) => { return document.getElementById(id);}
+
+              // Get Elements
+              var status = element('status');
+              var messages = element('messages');
+              var textarea = element('textarea');
+              var name = element('name');
+              var clearBtn = element('clear');
+
+              // Set default status
+              var statusDefault = status.textContent;
+
+              var setStatus = (s) => {
+                  status.textContent = s;
+
+                  if(s !== statusDefault) {
+                      var delay = setTimeout(function() {
+                          setStatus(statusDefault);
+                      }, 4000);
+                  }
+              }
+
+              // Connect to socket.io
+              var socket = io.connect('http://127.0.0.1:3000');
+
+              // Check for connection
+              if(socket !== undefined) {
+                  console.log('Connected to socket.io!');
+
+                  // Handle Output
+                  socket.on('output', function(data) {
+                      if(data.length) {
+                          for(var i = 0; i < data.length; i++) {
+                              // Build output html message
+                              var message = document.createElement('div');
+                              message.setAttribute('class', 'chat-message');
+                              message.textContent = data[i].name+": "+data[i].message;
+
+                              var date = document.createElement('span');
+                              date.setAttribute('class', 'date-message');
+                              date.textContent = moment(data[i].createdAt).format('[At] hh:mm [the] MM/DD/YYYY ');
+
+
+
+                              messages.appendChild(message);
+                              messages.appendChild(date);
+                              messages.insertBefore(date, messages.firstChild);
+                              messages.insertBefore(message, messages.firstChild);
+
+                          }
+                      }
+                  });
+
+                  // Handle input
+                  textarea.addEventListener('keydown', function(event) {
+                      // event.which 13 => Enter or Return
+                      if(event.which === 13 && event.shiftKey == false) {
+                          // Emit to server input
+                          socket.emit('input', {
+                              name: name.value,
+                              message: textarea.value
+                          });
+
+                          event.preventDefault();
+                      }
+                  });
+
+                  // Handle chat clear
+                  clearBtn.addEventListener('click', function() {
+                      socket.emit('clear');
+                  });
+
+                  // Clear message
+                  socket.on('cleared', function() {
+                      messages.textContent = '';
+                  });
+
+                  // Get status from server
+                  socket.on('status', function(data) {
+                      // Get message status
+                      setStatus((typeof data === 'object')? data.message : data);
+
+                      //If status is clear, clear text
+                      if(data.clear) {
+                          textarea.value = '';
+                      }
+                  });
+              }
+          })();
+      </script>
+  </body>
+</html>

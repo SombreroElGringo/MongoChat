@@ -1,0 +1,30 @@
+{
+  "name": "mongochat",
+  "version": "1.0.0",
+  "description": "A chat App with MongoDB & Socket.io",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SombreroElGringo/MongoChat.git"
+  },
+  "keywords": [
+    "socket.io",
+    "mongodb",
+    "chat"
+  ],
+  "author": "SombreroElGringo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SombreroElGringo/MongoChat/issues"
+  },
+  "homepage": "https://github.com/SombreroElGringo/MongoChat#readme",
+  "dependencies": {
+    "chalk": "^2.1.0",
+    "mongodb": "^2.2.31",
+    "socket.io": "^2.0.3"
+  }
+}
