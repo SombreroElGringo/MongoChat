@@ -9,6 +9,7 @@
     <style>
         #messages{
             height: 400px;
+            overflow: auto;
         }
         .char-message {
             position: relative;
@@ -81,7 +82,7 @@
               }
 
               // Connect to socket.io
-              var socket = io.connect('http://127.0.0.1:3000');
+              var socket = io.connect('http://127.0.0.1:4000');
 
               // Check for connection
               if(socket !== undefined) {
